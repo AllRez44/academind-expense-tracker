@@ -6,7 +6,9 @@ import 'package:intl/intl.dart';
 final formatter = DateFormat.yMd();
 
 class NewExpenseModal extends StatefulWidget {
-  const NewExpenseModal({super.key});
+  NewExpenseModal(this.addNewExpense, {super.key});
+
+  void Function(Expense newExpense) addNewExpense;
 
   @override
   State<NewExpenseModal> createState() => _NewExpenseModalState();
@@ -24,6 +26,7 @@ class _NewExpenseModalState extends State<NewExpenseModal> {
       _selectedCategory = category;
     });
   }
+
   void _presentDatePicker() {
     final now = DateTime.now();
     final firstDate = DateTime(now.year - 1, now.month, now.day);
@@ -32,17 +35,53 @@ class _NewExpenseModalState extends State<NewExpenseModal> {
       firstDate: firstDate,
       lastDate: now,
     ).then((pickedDate) => {
-      if (pickedDate != null)
-        {
-          setState(() {
-            _selectedDate = pickedDate;
-          })
-        }
-    });
+          if (pickedDate != null)
+            {
+              setState(() {
+                _selectedDate = pickedDate;
+              })
+            }
+        });
   }
+
+  bool _validateExpenseInputs() {
+    final parsedAmount = double.tryParse(_amountController.text);
+    if (_titleController.text.trim().isEmpty ||
+        parsedAmount == null ||
+        _selectedCategory == null ||
+        _selectedDate == null) {
+      showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Invalid input'),
+          content: const Text('Please, make sure valid values were entered.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('Okay'),
+            )
+          ],
+        ),
+      );
+      return false;
+    }
+    return true;
+  }
+
   void _saveExpense() {
-    print('New Title: ${_titleController.text}');
-    print('New Amount: ${_amountController.text}');
+    if (_validateExpenseInputs()) {
+      widget.addNewExpense(
+        Expense(
+          title: _titleController.text.trim(),
+          amount: double.parse(_amountController.text),
+          category: _selectedCategory!,
+          date: _selectedDate!,
+        ),
+      );
+      Navigator.pop(context);
+    }
   }
 
   void _cancelExpanse() {
@@ -108,16 +147,18 @@ class _NewExpenseModalState extends State<NewExpenseModal> {
           Row(
             children: [
               DropdownButton(
-                  items: categories.map(
-                    (category) => DropdownMenuItem(
-                      value: category,
-                      child: Text(category.name.toUpperCase()),
-                    ),
-                  ).toList(),
-                  value: _selectedCategory,
-                  onChanged: (selectedCategory) {
-                    _selectCategory(selectedCategory as Category?);
-                  },
+                items: categories
+                    .map(
+                      (category) => DropdownMenuItem(
+                        value: category,
+                        child: Text(category.name.toUpperCase()),
+                      ),
+                    )
+                    .toList(),
+                value: _selectedCategory,
+                onChanged: (selectedCategory) {
+                  _selectCategory(selectedCategory as Category?);
+                },
               ),
               const Spacer(),
               TextButton(
