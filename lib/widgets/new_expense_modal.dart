@@ -6,9 +6,9 @@ import 'package:intl/intl.dart';
 final formatter = DateFormat.yMd();
 
 class NewExpenseModal extends StatefulWidget {
-  NewExpenseModal(this.addNewExpense, {super.key});
+  NewExpenseModal(this.onAddNewExpense, {super.key});
 
-  void Function(Expense newExpense) addNewExpense;
+  void Function(Expense newExpense) onAddNewExpense;
 
   @override
   State<NewExpenseModal> createState() => _NewExpenseModalState();
@@ -70,9 +70,9 @@ class _NewExpenseModalState extends State<NewExpenseModal> {
     return true;
   }
 
-  void _saveExpense() {
+  void  _saveExpense() {
     if (_validateExpenseInputs()) {
-      widget.addNewExpense(
+      widget.onAddNewExpense(
         Expense(
           title: _titleController.text.trim(),
           amount: double.parse(_amountController.text),
@@ -98,7 +98,7 @@ class _NewExpenseModalState extends State<NewExpenseModal> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
       child: Column(
         children: [
           TextField(
@@ -140,7 +140,7 @@ class _NewExpenseModalState extends State<NewExpenseModal> {
                     )
                   ],
                 ),
-              )
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -157,7 +157,7 @@ class _NewExpenseModalState extends State<NewExpenseModal> {
                     .toList(),
                 value: _selectedCategory,
                 onChanged: (selectedCategory) {
-                  _selectCategory(selectedCategory as Category?);
+                  _selectCategory(selectedCategory);
                 },
               ),
               const Spacer(),
