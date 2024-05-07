@@ -38,7 +38,8 @@ class _ExpensesState extends State<ExpensesApp> {
     setState(() {
       _registeredExpenses.remove(expense);
     });
-    ScaffoldMessenger.of(context).clearSnackBars(); // Clears previous snack bar(s) before showing the next one
+    ScaffoldMessenger.of(context)
+        .clearSnackBars(); // Clears previous snack bar(s) before showing the next one
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         duration: const Duration(seconds: 3),
@@ -65,6 +66,8 @@ class _ExpensesState extends State<ExpensesApp> {
 
   @override
   Widget build(BuildContext context) {
+    final deviceWidth = MediaQuery.of(context).size.width ;
+
     Widget mainContent =
         const Center(child: Text('No expenses found. Start adding some!'));
 
@@ -80,12 +83,19 @@ class _ExpensesState extends State<ExpensesApp> {
         title: const Text('Flutter Expense Tracker'),
         actions: [
           IconButton(
-              onPressed: _openAddExpenseOverlay, icon: const Icon(Icons.add)),
+            onPressed: _openAddExpenseOverlay,
+            icon: const Icon(Icons.add),
+          ),
         ],
       ),
-      body: Column(
+      body: (deviceWidth < 600) ? Column(
         children: [
           Chart(expenses: _registeredExpenses),
+          Expanded(child: mainContent),
+        ],
+      ) : Row(
+        children: [
+          Expanded(child: Chart(expenses: _registeredExpenses)),
           Expanded(child: mainContent),
         ],
       ),
